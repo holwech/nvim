@@ -1,29 +1,47 @@
-set nocompatible              " be iMproved, required
-filetype off                  " required
+if &compatible
+  set nocompatible               " Be iMproved
+endif
 
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+" Required:
+set runtimepath^=/home/joachim/.config/nvim/repos/github.com/Shougo/dein.vim
 
+" Required:
+call dein#begin(expand('/home/joachim/.config/nvim/'))
 
+" Let dein manage dein
+" Required:
+call dein#add('Shougo/dein.vim')
 
+" Add or remove your plugins here:
+call dein#add('Shougo/neosnippet.vim')
+call dein#add('Shougo/neosnippet-snippets')
+call dein#add('VundleVim/Vundle.vim')
+call dein#add('ctrlpvim/ctrlp.vim')
+call dein#add('scrooloose/nerdtree')
+call dein#add('pkukulak/idle')
+call dein#add('tpope/vim-surround')
+call dein#add('terryma/vim-multiple-cursors')
+call dein#add('jiangmiao/auto-pairs')
+call dein#add('jpalardy/spacehi.vim')
+call dein#add('moll/vim-bbye')
+call dein#add('fatih/vim-go')
+call dein#add('Shougo/deoplete.nvim')
+call dein#add('zchee/deoplete-go', {'build': 'make'})
+call dein#add('fatih/molokai')
 
-" ---- Plugins go here ----
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'ctrlpvim/ctrlp.vim'
-Plugin 'scrooloose/nerdtree'
-Plugin 'pkukulak/idle'
-Plugin 'tpope/vim-surround'
-Plugin 'terryma/vim-multiple-cursors'
-Plugin 'jiangmiao/auto-pairs'
-Plugin 'jpalardy/spacehi.vim'
-Plugin 'moll/vim-bbye'
-Plugin 'vim-scripts/vim-auto-save'
-Plugin 'fatih/vim-go'
+" You can specify revision/branch/tag.
+call dein#add('Shougo/vimshell', { 'rev': '3787e5' })
 
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
+" Required:
+call dein#end()
+
+" Required:
+filetype plugin indent on
+
+" If you want to install not installed plugins on startup.
+if dein#check_install()
+  call dein#install()
+endif
 
 
 
@@ -38,7 +56,7 @@ set nohlsearch
 set autoread
 
 " + Initialize colorscheme
-colorscheme idle
+colorscheme molokai
 
 " + Stops vim from throwing errors when changing from an unsaved buffer
 set hidden
@@ -109,10 +127,14 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 " Map surround to s instead of S
 xmap s <Plug>VSurround
 
-" + vim-auto-save
+" + Vim-auto-save
 " Turn on autosave by default
 let g:auto_save = 1
 " Do not save in insert-mode
 let g:auto_save_in_insert_mode = 0
 " Silence display on status line
 " let g:auto_save_silent = 1
+
+" + Deoplete 
+" Enable at startup
+let g:deoplete#enable_at_startup = 1

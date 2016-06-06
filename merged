@@ -1,1 +1,1 @@
-['Vundle.vim', 'auto-pairs', 'ctrlp.vim', 'dein.vim', 'deoplete.nvim', 'idle', 'molokai', 'neosnippet-snippets', 'neosnippet.vim', 'nerdtree', 'spacehi.vim', 'vim-bbye', 'vim-go', 'vim-multiple-cursors', 'vim-surround', 'vimshell']
+['Vundle.vim', 'auto-pairs', 'ctrlp.vim', 'dein.vim', 'deoplete.nvim', 'emmet-vim', 'idle', 'molokai', 'neosnippet-snippets', 'neosnippet.vim', 'nerdtree', 'spacehi.vim', 'vim-bbye', 'vim-go', 'vim-multiple-cursors', 'vim-surround', 'vimshell']

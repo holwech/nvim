@@ -28,6 +28,7 @@ call dein#add('fatih/vim-go')
 call dein#add('Shougo/deoplete.nvim')
 call dein#add('zchee/deoplete-go', {'build': 'make'})
 call dein#add('fatih/molokai')
+call dein#add('mattn/emmet-vim')
 
 " You can specify revision/branch/tag.
 call dein#add('Shougo/vimshell', { 'rev': '3787e5' })
@@ -64,33 +65,47 @@ set hidden
 " + allow backspacing over everything in insert mode
 set backspace=indent,eol,start
 
+" Set relative line numbering
+set relativenumber
+
+" Maps "+y to copy to system clipboard
+set clipboard+=unnamedplus
+
 " + Tab settings
 " Set tabs to size 2
 set tabstop=2 softtabstop=0 noexpandtab shiftwidth=2
 
-" + Split configs
-" Remaps ctrl-w h/j/k/l to just ctrl-h/j/k/l
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
 
 " + Turn on line numbers
 set number
 
-set backup		" keep a backup file (restore to previous version)
-set undofile		" keep an undo file (undo changes after closing)
-set history=50		" keep 50 lines of command line history
-set ruler		" show the cursor position all the time
-set showcmd		" display incomplete commands
-set incsearch		" do incremental searching
+" keep a backup file (restore to previous version)
+set backup		
 
-" Don't use Ex mode, use Q for formatting
-map Q gq
+" File placement for backup files
+set backupdir=$NVIM/temp/backup//
 
-" CTRL-U in insert mode deletes a lot.  Use CTRL-G u to first break undo,
-" so that you can undo CTRL-U after inserting a line break.
-inoremap <C-U> <C-G>u<C-U>
+" File placement for swap files 
+set dir=$NVIM/temp/swp//
+
+" keep an undo file (undo changes after closing)
+set undofile		
+
+" File placement for undo files
+set undodir=$NVIM/temp/undo//
+
+" keep 50 lines of command line history
+set history=50		
+
+" show the cursor position all the time
+set ruler		
+
+" display incomplete commands
+set showcmd		
+
+" do incremental searching
+set incsearch		
+
 
 " Convenient command to see the difference between the current buffer and the
 " file it was loaded from, thus the changes you made.
@@ -107,6 +122,42 @@ if has('langmap') && exists('+langnoremap')
   set langnoremap
 endif
 
+
+" Automatically enters insert mode when going to the terminal buffer
+autocmd BufWinEnter,WinEnter term://* startinsert
+autocmd BufLeave term://* stopinsert
+
+" Closes scratch window when exiting insert mode
+autocmd InsertLeave * if pumvisible() == 0 | pclose | endif
+
+" ---- Non-plugin mappings ----
+
+" Don't use Ex mode, use Q for formatting
+map Q gq
+
+" Split configs
+" Remaps ctrl-w h/j/k/l to just ctrl-h/j/k/l
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+" CTRL-U in insert mode deletes a lot.  Use CTRL-G u to first break undo,
+" so that you can undo CTRL-U after inserting a line break.
+inoremap <C-U> <C-G>u<C-U>
+
+" Makes navigation work in terminal
+:tnoremap <C-h> <C-\><C-n><C-w>h
+:tnoremap <C-j> <C-\><C-n><C-w>j
+:tnoremap <C-k> <C-\><C-n><C-w>k
+:tnoremap <C-l> <C-\><C-n><C-w>l
+:nnoremap <C-h> <C-w>h
+:nnoremap <C-j> <C-w>j
+:nnoremap <C-k> <C-w>k
+:nnoremap <C-l> <C-w>l
+
+" Remap exit terminal to Esc-key
+tnoremap <Esc> <C-\><C-n>
 
 
 
@@ -138,3 +189,25 @@ let g:auto_save_in_insert_mode = 0
 " + Deoplete 
 " Enable at startup
 let g:deoplete#enable_at_startup = 1
+
+" + Neosnippet
+" Plugin key-mappings
+imap <C-k> <Plug>(neosnippet_expand_or_jump)
+smap <C-k> <Plug>(neosnippet_expand_or_jump)
+xmap <C-k> <Plug>(neosnippet_expand_target)
+" Adds SuperTab behavior
+imap <expr><TAB>
+ \ pumvisible() ? "\<C-n>" :
+ \ neosnippet#expandable_or_jumpable() ?
+ \    neosnippet#mappings#expand_or_jump_impl() : "\<TAB>"
+smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+\ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+" Conceals markers
+if has('conceal')
+	set conceallevel=2 concealcursor=niv
+endif
+
+" + Emmet
+" Enable just for html, css and js
+let g:user_emmet_install_global = 0
+autocmd FileType html,css,js EmmetInstall

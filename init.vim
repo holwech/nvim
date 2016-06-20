@@ -208,6 +208,14 @@ if has('conceal')
 endif
 
 " + Emmet
+" Remap to ctrl-z,
+let g:user_emmet_leader_key='<C-Z>'
 " Enable just for html, css and js
-let g:user_emmet_install_global = 0
-autocmd FileType html,css,js EmmetInstall
+"let g:user_emmet_install_global = 0
+"autocmd FileType html,css,js EmmetInstall
+
+" + CtrlP
+" Ignore node_module folder
+let g:ctrlp_custom_ignore = {
+	\ 'dir': 'node_module',
+	\}

@@ -1,6 +1,6 @@
 # NVIM
 ## What is this?
-This is a config file for NeoVim. Bundler is Dein. Follow
+This is a config file for NeoVim. Bundler is Dein.
 
 ## How to install
 1. Run `git clone https://github.com/holwech/nvim/`

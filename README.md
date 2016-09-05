@@ -15,5 +15,8 @@ cd temp
 mkdir swp backup
 ```
 6. Run the install script for Dein `sh ./installer.sh /current_path/`.
-7. Open Neovim to install addons.
+7. Open Neovim to install the addons.
 8. That's all!
+
+## Adding clipboard support
+Install xsel `sudo apt-get install xsel`.

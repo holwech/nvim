@@ -3,7 +3,7 @@
 This is a config file for NeoVim.
 
 ## How to install
-1. Make sure NeoVim is install with python3 support.
+1. Make sure NeoVim is installed with python3 support.
 2. Open `.profile` and add the line `export NVIM=$HOME/.config/nvim`, then log out and in of Ubuntu.
 3. Go to config folder `cd $NVIM`.
 3. Run `git clone https://github.com/holwech/nvim/`.

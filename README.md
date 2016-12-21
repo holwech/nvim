@@ -14,7 +14,7 @@ mkdir temp
 cd temp
 mkdir swp backup
 ```
-6. Run the install script for Dein `sh ./installer.sh /current_path/`.
+6. Run the install script for Dein `sh ./installer.sh $NVIM`.
 7. Open Neovim to install the addons.
 8. That's all!
 

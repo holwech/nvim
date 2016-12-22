@@ -106,6 +106,12 @@ set showcmd
 " do incremental searching
 set incsearch		
 
+" Auto-saves everything on loss of focus
+au FocusLost * :wa
+
+" Disable mouse
+set mouse=c
+
 
 " Convenient command to see the difference between the current buffer and the
 " file it was loaded from, thus the changes you made.
@@ -177,14 +183,6 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 " + Surround
 " Map surround to s instead of S
 xmap s <Plug>VSurround
-
-" + Vim-auto-save
-" Turn on autosave by default
-let g:auto_save = 1
-" Do not save in insert-mode
-let g:auto_save_in_insert_mode = 0
-" Silence display on status line
-" let g:auto_save_silent = 1
 
 " + Deoplete 
 " Enable at startup

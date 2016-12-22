@@ -1,0 +1,2 @@
+100
+['Shougo/dein.vim', 'Shougo/deoplete.nvim', 'Shougo/neosnippet-snippets', 'Shougo/neosnippet.vim', 'Shougo/vimshell', 'VundleVim/Vundle.vim', 'ctrlpvim/ctrlp.vim', 'fatih/molokai', 'fatih/vim-go', 'jiangmiao/auto-pairs', 'jpalardy/spacehi.vim', 'mattn/emmet-vim', 'moll/vim-bbye', 'pkukulak/idle', 'scrooloose/nerdtree', 'terryma/vim-multiple-cursors', 'tpope/vim-surround']

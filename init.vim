@@ -26,6 +26,7 @@ call dein#add('jpalardy/spacehi.vim')
 call dein#add('moll/vim-bbye')
 call dein#add('fatih/vim-go')
 call dein#add('Shougo/deoplete.nvim')
+call dein#add('zchee/deoplete-clang')
 call dein#add('zchee/deoplete-go', {'build': 'make'})
 call dein#add('fatih/molokai')
 call dein#add('mattn/emmet-vim')
@@ -111,6 +112,14 @@ au FocusLost * :wa
 
 " Disable mouse
 set mouse=c
+
+" Display tabs and trailing spaces
+set list listchars=trail:·,tab:┊\ ,extends:>,precedes:<,nbsp:·
+
+" Automatic scroll when 8 lines away from bottom
+set scrolloff=8
+set sidescrolloff=15
+set sidescroll=1
 
 
 " Convenient command to see the difference between the current buffer and the
@@ -217,3 +226,7 @@ let g:user_emmet_leader_key='<C-Z>'
 let g:ctrlp_custom_ignore = {
 	\ 'dir': 'node_module',
 	\}
+
+" + deoplete-clang
+let g:deoplete#sources#clang#libclang_path = "/usr/lib/x86_64-linux-gnu/libclang-3.9.so.1"
+let g:deoplete#sources#clang#clang_header ="/usr/include/clang/3.9.1/include/"

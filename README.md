@@ -25,4 +25,4 @@ Install xsel `sudo apt-get install xsel`.
 The deoplete-clang plugin for C++ autocompletion requires clang `>3.9`.
 Make sure to have this version or higher installed, also make sure that
 the relevant config lines for the deoplete-clang plugin in the nvim file 
-are point to the right folders.
+are pointing to the right folders.

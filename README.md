@@ -20,3 +20,12 @@ mkdir swp backup
 
 ## Adding clipboard support
 Install xsel `sudo apt-get install xsel`.
+
+## Fixing golang support
+Run the following commands
+```
+pip2 install --upgrade neovim
+pip3 install --upgrade neovim
+go get -u github.com/nsf/gocode
+```
+See more here [here](https://github.com/zchee/deoplete-go)

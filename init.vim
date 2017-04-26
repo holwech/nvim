@@ -30,6 +30,7 @@ call dein#add('zchee/deoplete-clang')
 call dein#add('zchee/deoplete-go', {'build': 'make'})
 call dein#add('fatih/molokai')
 call dein#add('mattn/emmet-vim')
+call dein#add('posva/vim-vue')
 
 " You can specify revision/branch/tag.
 call dein#add('Shougo/vimshell', { 'rev': '3787e5' })
@@ -74,8 +75,7 @@ set clipboard+=unnamedplus
 
 " + Tab settings
 " Set tabs to size 2
-set tabstop=2 softtabstop=0 noexpandtab shiftwidth=2
-
+set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
 
 " + Turn on line numbers
 set number

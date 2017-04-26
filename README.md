@@ -9,11 +9,11 @@ This is a config file for NeoVim.
 3. Run `git clone https://github.com/holwech/nvim/`.
 4. `cd nvim` and delete the repo folder by calling `rm -rf repos`.
 5. Make backup folder
-```
-mkdir temp
-cd temp
-mkdir swp backup
-```
+  ```
+  mkdir temp
+  cd temp
+  mkdir swp backup
+  ```
 6. Run the install script for Dein `sh ./installer.sh $NVIM`.
 7. Open Neovim to install the addons.
 8. That's all!
@@ -21,6 +21,7 @@ mkdir swp backup
 ## Adding clipboard support
 Install xsel `sudo apt-get install xsel`.
 
+<<<<<<< HEAD
 ## Fixing golang support
 Run the following commands
 ```
@@ -29,3 +30,10 @@ pip3 install --upgrade neovim
 go get -u github.com/nsf/gocode
 ```
 See more here [here](https://github.com/zchee/deoplete-go)
+=======
+## Deoplete-clang
+The deoplete-clang plugin for C++ autocompletion requires clang `>3.9`.
+Make sure to have this version or higher installed, also make sure that
+the relevant config lines for the deoplete-clang plugin in the nvim file 
+are pointing to the right folders.
+>>>>>>> 9363cca882db2c0955ce85733f130aa670fa4d21

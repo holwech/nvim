@@ -21,7 +21,6 @@ This is a config file for NeoVim.
 ## Adding clipboard support
 Install xsel `sudo apt-get install xsel`.
 
-<<<<<<< HEAD
 ## Fixing golang support
 Run the following commands
 ```
@@ -30,10 +29,9 @@ pip3 install --upgrade neovim
 go get -u github.com/nsf/gocode
 ```
 See more here [here](https://github.com/zchee/deoplete-go)
-=======
+
 ## Deoplete-clang
 The deoplete-clang plugin for C++ autocompletion requires clang `>3.9`.
 Make sure to have this version or higher installed, also make sure that
 the relevant config lines for the deoplete-clang plugin in the nvim file 
 are pointing to the right folders.
->>>>>>> 9363cca882db2c0955ce85733f130aa670fa4d21

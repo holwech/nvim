@@ -30,6 +30,9 @@ go get -u github.com/nsf/gocode
 ```
 See more here [here](https://github.com/zchee/deoplete-go)
 
+## Deoplete prints long list of random errors
+This is probably a problem with the path variable to the go bin folder
+
 ## Deoplete-clang
 The deoplete-clang plugin for C++ autocompletion requires clang `>3.9`.
 Make sure to have this version or higher installed, also make sure that

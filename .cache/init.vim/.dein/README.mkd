@@ -1,8 +1,12 @@
-Neosnippet-snippets
-===================
+This is a modified version of
+https://github.com/altercation/vim-colors-solarized for neovim. It supports the
+true color (24-bit color) mode that neovim provides. The simplest configuration
+is the following.
 
-The standard snippets repository for
-[neosnippet](https://github.com/Shougo/neosnippet.vim).
+    let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+    set background=dark " or light
+    colorscheme solarized
 
-You can fork or send pull request.
+For more information, see the original
+![README](https://github.com/altercation/vim-colors-solarized/blob/master/README.mkd).
 

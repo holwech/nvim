@@ -1,85 +1,307 @@
-Bbye (Buffer Bye) for Vim
-==========================
-Bbye allows you to do delete buffers (close files) without closing your windows or messing up your layout.
+# deoplete-clang
 
-Vim by default closes all windows that have the buffer (file) open when you do `:bdelete`.  If you've just got your splits and columns perfectly tuned, having them messed up equals a punch in the face and that's no way to tango.
+|| **Status** |
+|---|---|
+|**Ubuntu 14.04** |[![Build Status](https://travis-ci.org/zchee/deoplete-clang.svg?branch=master)](https://travis-ci.org/zchee/deoplete-clang)|
 
-Bbye gives you a `:Bdelete` command that behaves like a well designed citizen:
+C/C++/Objective-C/Objective-C++ source for [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)
 
-- Closes and removes the buffer.
-- Shows another file in that window.
-- Shows an empty file if you've got no other files open.
-- Does not leave useless `[no file]` buffers if you decide to edit another file in that window.
-- Works even if a file's open in multiple windows.
-- Works a-okay with various buffer explorers and tabbars.
+## Overview
 
-Regain your throne as king of buffers!
+Deoplete-clang offers asynchronous completion of code written in C, C++,
+Objective-C and Objective-C++ inside of Neovim.  It is built upon the following
+tools:
 
+### deoplete
 
-Installing
-----------
-The easiest and most modular way is to download Bbye to `~/.vim/bundle`:
+[Shougo/deoplete.nvim](https://github.com/Shougo/deoplete.nvim)
+
+The *dark powered asynchronous completion framework* for Neovim.  It offers a
+fast, fully asynchronous, nonblocking user interface, customizable sources for
+each languages, and more.  The Next generation of word completion.
+
+### libclang-python3
+
+[zchee/libclang-python3](https://github.com/zchee/libclang-python3)
+
+A Python 3 port of the official clang compiler bindings for Python.  The
+original author is @Anteru, I forked it and follow the latest of llvm clang.
+
+## Requirements
+
+### Neovim and neovim/python-client
+
+https://github.com/neovim/neovim
+https://github.com/neovim/python-client
+
+### deoplete.nvim
+
+https://github.com/Shougo/deoplete.nvim
+
+### libclang shared object (dynamic library)
+
+http://llvm.org
+https://github.com/apple/swift-clang
+
+## How to install
+
+### Install Neovim
+
+See the Neovim wiki.
+
+- [Installing Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim)
+- [Following HEAD](https://github.com/neovim/neovim/wiki/Following-HEAD)
+- [Building](https://github.com/neovim/neovim/wiki/Building-Neovim)
+
+### Install the neovim/python-client
+
+Neovim remote client for Python.
+See https://github.com/neovim/python-client
+
+```bash
+pip2 install --upgrade neovim
+pip3 install --upgrade neovim
 ```
-mkdir -p ~/.vim/bundle/bbye
+
+### Install libclang and clang headers
+
+For GNU/Linux, e.g. apt family,
+
+```bash
+apt-get install clang
 ```
 
-Using Git:
-```
-git clone https://github.com/moll/vim-bbye.git ~/.vim/bundle/bbye
-```
+For macOS, use Homebrew:
 
-Using Wget:
-```
-wget https://github.com/moll/vim-bbye/archive/master.tar.gz -O- | tar -xf- --strip-components 1 -C ~/.vim/bundle/bbye
+```bash
+brew install llvm --with-clang
 ```
 
-Then prepend that directory to Vim's `&runtimepath` (or use [Pathogen](https://github.com/tpope/vim-pathogen)):
-```
-set runtimepath^=~/.vim/bundle/bbye
-```
+This has not been tested, it is recommended to build from source.
+See http://clang.llvm.org/get_started.html or try the build-llvm script.
+You will need `cmake`, `ninja` or `Xcode`.
 
+[Build llvm for OS X](https://gist.github.com/zchee/740e99acd893afeeae6d)
 
-Using
------
-Instead of using `:bdelete`, use `:Bdelete`.
-Fortunately autocomplete helps by sorting `:Bdelete` before its lowercase brother.
+### Install deoplete and deoplete-clang
 
-As it's likely you'll be using `:Bdelete` often, make a shortcut to `\q`, for example, to save time. Throw this to your `vimrc`:
-```
-:nnoremap <Leader>q :Bdelete<CR>
-```
-
-### Closing all open buffers and files
-
-Occasionally you'll want to close all open buffers and files while leaving your pristine window setup as is. That's easy. Just do:
-```
-:bufdo :Bdelete
+```vim
+" dein.vim (fastest)
+call dein#add('Shougo/deoplete.nvim')
+call dein#add('zchee/deoplete-clang')
+" NeoBundle
+NeoBundle 'Shougo/deoplete.nvim'
+NeoBundle 'zchee/deoplete-clang'
+" vim-plug
+Plug 'Shougo/deoplete.nvim'
+Plug 'zchee/deoplete-clang'
 ```
 
-### Aliasing to :Bclose
+## Available Settings
 
-If you've used any `Bclose.vim` scripts before and for some reason need the `:Bclose` command to exist, you may make an alias:
+| Setting value | Default | Required |
+|:-------------:|:-------:|:--------:|
+`g:deoplete#sources#clang#libclang_path` | `''` | **Yes**
+`g:deoplete#sources#clang#clang_header` | `''` | **Yes**
+`g:deoplete#sources#clang#std` | See this section | No
+`g:deoplete#sources#clang#flags` | See this section | No
+`g:deoplete#sources#clang#sort_algo` | `''` | No
+`g:deoplete#sources#clang#clang_complete_database` | `''` | No
+
+### `g:deoplete#sources#clang#libclang_path`
+
+|||
+|---|---|
+| **Required** | Yes |
+| **Type** | string |
+| **Default** | - |
+| **Example** | `path/to/lib/libclang.so` |
+
+The libclang shared object (dynamic library) file path.  On GNU/Linux the file
+name is `libclang.so`.  On macOS it is `libclang.dylib`.
+
+If you have trouble locating the library you can use the `find` command,
+
+```bash
+# On GNU/Linux
+[sudo] find / -name libclang.so
+# On macOS
+mdfind -name libclang.dylib
 ```
-command! -bang -complete=buffer -nargs=? Bclose Bdelete<bang> <args>
+
+### `g:deoplete#sources#clang#clang_header`
+
+|||
+|---|---|
+| **Required** | Yes |
+| **Type** | string |
+| **Default** | - |
+| **Example** | `path/to/lib/clang` |
+
+The clang built-in include header directory path; **not `clang-c`**, and **not
+the required clang version**.  Deoplete-clang always use the latest clang
+version.
+
+Example:
+
+```bash
+/opt/llvm/lib/clang
+└── 3.9.0
+    ├── include
+    │   ├── Intrin.h
+    │   ├── __clang_cuda_cmath.h
+    │   ├── __clang_cuda_runtime_wrapper.h
+    │   ├── __stddef_max_align_t.h
+    │   ├── __wmmintrin_aes.h
+    │   ├── __wmmintrin_pclmul.h
+    │   ├── adxintrin.h
+    │   ├── altivec.h
+    │   ├── ammintrin.h
+    │   ├── arm_acle.h
+    │   ├── arm_neon.h
+    .
+    .
+    .
+    │   ├── stdalign.h
+    │   ├── stdarg.h
+    │   ├── stdatomic.h
+    │   ├── stdbool.h
+    │   ├── stddef.h
+    │   ├── stdint.h
+    .
+    .
+    .
+    │   ├── xsavecintrin.h
+    │   ├── xsaveintrin.h
+    │   ├── xsaveoptintrin.h
+    │   ├── xsavesintrin.h
+    │   └── xtestintrin.h
+    ├── lib
+    │   └── darwin
+    └── vtables_blacklist.txt
 ```
 
+### `g:deoplete#sources#clang#std`
 
-License
--------
-Bbye is released under a *Lesser GNU Affero General Public License*, which in summary means:
+|||
+|---|---|
+| **Required** | No |
+| **Type** | dict |
+| **C Default** | `c11` |
+| **C++ Default** | `c++1z` |
+| **Objective-C Default** | `c11` |
+| **Objective-C++ Default** | `c++1z` |
+| **Example** | `{'c': 'c11', 'cpp': 'c++1z', 'objc': 'c11', 'objcpp': 'c++1z'}` |
 
-- You **can** use this program for **no cost**.
-- You **can** use this program for **both personal and commercial reasons**.
-- You **do not have to share your own program's code** which uses this program.
-- You **have to share modifications** (e.g bug-fixes) you've made to this program.
+The standard version for each of the C family languages.  By default, use the
+lastest version supported by clang.
 
-For more convoluted language, see the `LICENSE` file.
+### `g:deoplete#sources#clang#flags`
 
+|||
+|---|---|
+| **Required** | No |
+| **Type** | list |
+| **C Default** | `['-x', 'c']` |
+| **C++ Default** | `['-x', 'c++']` |
+| **Objective-C Default** | `['-x', 'objective-c']` |
+| **Objective-C++ Default** | `['-x', 'objective-c++']` |
+| **Example** | `["-fblocks",]` |
 
-About
------
-**[Andri Möll](http://themoll.com)** authored this in SublemacslipseMate++.  
-[Monday Calendar](https://mondayapp.com) supported the engineering work.  
-Inspired by [Bclose.vim](http://vim.wikia.com/wiki/VimTip165), but rewritten to be perfect.
+`C(XX)FLAGS` for generating completions.  Setting value **other than default**.
+Does not need `-x c` or similar.
 
-If you find Bbye needs improving or you've got a question, please don't hesitate to email me anytime at andri@dot.ee or [create an issue online](https://github.com/moll/vim-bbye/issues).
+If you want to know the default clang build flags your of your installation you
+can try
+
+```bash
+# C
+echo | clang -v -E -x c -
+# C++
+echo | clang -v -E -x c++ -
+# Objective-C
+echo | clang -v -E -x objective-c -
+# Objective-C++
+echo | clang -v -E -x objective-c++ -
+```
+
+For example, on macOS the settings would correspond to:
+
+```vim
+let g:deoplete#sources#clang#flags = [
+      \ "-cc1",
+      \ "-triple", "x86_64-apple-macosx10.11.0",
+      \ "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk",
+      .
+      .
+      .
+      \ "-fmax-type-align=16",
+      \ ]
+```
+
+### `g:deoplete#sources#clang#sort_algo`
+
+|||
+|---|---|
+| **Required** | No |
+| **Type** | string |
+| **Default** | `''` |
+| **Example** | `priority` or `alphabetical` |
+
+The sorting algorithm for libclang completion results.  Available values are
+`priority` or `alphabetical`.
+
+The default (`''`) uses the deoplete.nvim sorting algorithm.
+`priority` sorts the way libclang determines priority, `alphabetical` sorts by
+alphabetical order.
+
+### `g:deoplete#sources#clang#clang_complete_database`
+
+|||
+|---|---|
+| **Required** | No |
+| **Type** | string |
+| **Default** | `''` |
+| **Example** | `/path/to/neovim/build` |
+
+Support a clang JSON compilation database format specification; see
+http://clang.llvm.org/docs/JSONCompilationDatabase.html for more information.
+
+The setting value **must be an existing `compile_commands.json` directory**.
+This setting is **optional**.
+
+When this setting is used the compilation database file will take precedence
+over the `g:deoplete#sources#clang#flags` setting.  Parsing the compilation
+database file will take some time, so please on use this setting if you really
+need to support a compilation database.
+
+I'm planning the rewrite the parser in Go for faster parsing in the future.
+
+## Project-specific settings
+
+Deoplete-clang supports compiler-flags local to individual projects.  It will
+search the current working directory for a `.clang` file; if no such file is
+found it will try searching the parent directory.  The format of the `.clang`
+file is either
+
+```
+flags = <flags>
+```
+
+or
+
+```
+compilation_database = "<path to compilation_database>"
+```
+
+The former requires all compiler flags to be written on one line.  The format of
+the latter requires the path (relative to the `.clang` file) to a clang JSON
+compilation database format specification as described here:
+http://clang.llvm.org/docs/JSONCompilationDatabase.html
+
+## FAQ
+
+### deoplete-clang does not support completion from header files
+
+This is not supported.  You should use the neoinclude plugin instead:
+https://github.com/Shougo/neoinclude.vim

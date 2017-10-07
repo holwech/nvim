@@ -30,5 +30,3 @@ au BufReadPost *.s call s:gofiletype_post()
 au BufRead,BufNewFile *.tmpl set filetype=gohtmltmpl
 
 " vim: sw=2 ts=2 et
-" Detect syntax file.
-autocmd BufNewFile,BufRead *.snip,*.snippets set filetype=neosnippet

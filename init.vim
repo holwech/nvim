@@ -13,24 +13,33 @@ call dein#begin(expand('/home/joachim/.config/nvim/'))
 call dein#add('Shougo/dein.vim')
 
 " Add or remove your plugins here:
-call dein#add('Shougo/neosnippet.vim')
-call dein#add('Shougo/neosnippet-snippets')
 call dein#add('VundleVim/Vundle.vim')
+" File folder search
 call dein#add('ctrlpvim/ctrlp.vim')
+" Left side file manager
 call dein#add('scrooloose/nerdtree')
-call dein#add('pkukulak/idle')
+" Surrounding tool for surrounding things with things
 call dein#add('tpope/vim-surround')
+" Multicursor tool
 call dein#add('terryma/vim-multiple-cursors')
+" Insert or delete brackets, parens, quotes in pair
 call dein#add('jiangmiao/auto-pairs')
+" Highlights white space
 call dein#add('jpalardy/spacehi.vim')
+" Adds the Bdelete command. Closes files without closing/messing up windows
 call dein#add('moll/vim-bbye')
+" Go dev-tools
 call dein#add('fatih/vim-go')
+" Autocomplete suggestion window (?)
 call dein#add('Shougo/deoplete.nvim')
+" Autocomlete plugin for C/C++
 call dein#add('zchee/deoplete-clang')
+"Autocomplete for Go
 call dein#add('zchee/deoplete-go', {'build': 'make'})
-call dein#add('fatih/molokai')
-call dein#add('mattn/emmet-vim')
+" Adds colorscheme to Vue files
 call dein#add('posva/vim-vue')
+" Colorscheme
+call dein#add('arakashic/nvim-colors-solarized')
 
 " You can specify revision/branch/tag.
 call dein#add('Shougo/vimshell', { 'rev': '3787e5' })
@@ -59,7 +68,9 @@ set nohlsearch
 set autoread
 
 " + Initialize colorscheme
-colorscheme molokai
+let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+set background=light " or dark
+colorscheme solarized
 
 " + Stops vim from throwing errors when changing from an unsaved buffer
 set hidden
@@ -197,11 +208,6 @@ xmap s <Plug>VSurround
 " Enable at startup
 let g:deoplete#enable_at_startup = 1
 
-" + Neosnippet
-" Plugin key-mappings
-imap <C-k> <Plug>(neosnippet_expand_or_jump)
-smap <C-k> <Plug>(neosnippet_expand_or_jump)
-xmap <C-k> <Plug>(neosnippet_expand_target)
 " Adds SuperTab behavior
 imap <expr><TAB>
  \ pumvisible() ? "\<C-n>" :
@@ -213,13 +219,6 @@ smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
 if has('conceal')
 	set conceallevel=2 concealcursor=niv
 endif
-
-" + Emmet
-" Remap to ctrl-z,
-let g:user_emmet_leader_key='<C-Z>'
-" Enable just for html, css and js
-"let g:user_emmet_install_global = 0
-"autocmd FileType html,css,js EmmetInstall
 
 " + CtrlP
 " Ignore node_module folder

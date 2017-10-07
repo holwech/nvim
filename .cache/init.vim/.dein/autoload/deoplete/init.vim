@@ -11,13 +11,10 @@ endif
 function! deoplete#init#_is_enabled() abort
   return s:is_enabled
 endfunction
-function! s:is_initialized() abort
-  return exists('g:deoplete#_context')
-endfunction
 
 function! deoplete#init#_initialize() abort
-  if s:is_initialized()
-    return
+  if !deoplete#init#_check_channel()
+    return 1
   endif
 
   augroup deoplete
@@ -32,11 +29,9 @@ function! deoplete#init#_initialize() abort
   call deoplete#init#_variables()
 endfunction
 function! deoplete#init#_channel() abort
-  if !has('nvim') || !has('python3')
+  if !has('timers')
     call deoplete#util#print_error(
-          \ 'deoplete.nvim does not work with this version.')
-    call deoplete#util#print_error(
-          \ 'It requires Neovim with Python3 support("+python3").')
+          \ 'deoplete requires Neovim with timers support("+timers").')
     return 1
   endif
 
@@ -46,6 +41,12 @@ function! deoplete#init#_channel() abort
     endif
     call _deoplete()
   catch
+    if !has('nvim') || !has('python3')
+      call deoplete#util#print_error(
+            \ 'deoplete requires Neovim with Python3 support("+python3").')
+      return 1
+    endif
+
     call deoplete#util#print_error(printf(
           \ 'deoplete failed to load: %s. '
           \ .'Try the :UpdateRemotePlugins command and restart Neovim. '
@@ -53,20 +54,9 @@ function! deoplete#init#_channel() abort
           \ v:exception))
     return 1
   endtry
-
-  " neovim module version check.
-  if empty(g:deoplete#_neovim_python_version) ||
-        \ empty(filter(copy(g:deoplete#_neovim_python_version),
-        \   "deoplete#util#versioncmp(v:val, '0.1.8') >= 0"))
-    call deoplete#util#print_error(
-          \ 'Current neovim-python module version: ' .
-          \  string(g:deoplete#_neovim_python_version))
-    call deoplete#util#print_error(
-          \ 'deoplete.nvim requires neovim-python 0.1.8+.')
-    call deoplete#util#print_error(
-          \ 'Please update neovim-python by "pip3 install --upgrade neovim"')
-    return 1
-  endif
+endfunction
+function! deoplete#init#_check_channel() abort
+  return !exists('g:deoplete#_channel_id')
 endfunction
 function! deoplete#init#_enable() abort
   call deoplete#handler#_init()
@@ -82,6 +72,9 @@ endfunction
 function! deoplete#init#_variables() abort
   let g:deoplete#_context = {}
   let g:deoplete#_rank = {}
+  if !exists('g:deoplete#_logging')
+    let g:deoplete#_logging = {}
+  endif
 
   " User vairables
   call deoplete#util#set_default(
@@ -99,21 +92,23 @@ function! deoplete#init#_variables() abort
   call deoplete#util#set_default(
         \ 'g:deoplete#disable_auto_complete', 0)
   call deoplete#util#set_default(
-        \ 'g:deoplete#delimiters', ['/', '.', '::', ':', '#'])
+        \ 'g:deoplete#delimiters', ['/'])
   call deoplete#util#set_default(
         \ 'g:deoplete#max_list', 100)
   call deoplete#util#set_default(
         \ 'g:deoplete#enable_profile', 0)
   call deoplete#util#set_default(
-        \ 'g:deoplete#auto_complete_delay', 150)
+        \ 'g:deoplete#auto_complete_delay', 50)
   call deoplete#util#set_default(
-        \ 'g:deoplete#auto_refresh_delay', 50)
+        \ 'g:deoplete#auto_refresh_delay', 500)
   call deoplete#util#set_default(
         \ 'g:deoplete#max_abbr_width', 80)
   call deoplete#util#set_default(
         \ 'g:deoplete#max_menu_width', 40)
   call deoplete#util#set_default(
         \ 'g:deoplete#skip_chars', [])
+  call deoplete#util#set_default(
+        \ 'g:deoplete#complete_method', 'complete')
 
   call deoplete#util#set_default(
         \ 'g:deoplete#keyword_patterns', {})
@@ -147,21 +142,14 @@ function! deoplete#init#_variables() abort
   " Note: HTML omni func use search().
   call deoplete#util#set_pattern(
         \ g:deoplete#_omni_patterns,
-        \ 'html,xhtml,xml,markdown,mkd', ['<', '<[^>]*\s[[:alnum:]-]*'])
-
+        \ 'html,xhtml,xml', ['<', '</', '<[^>]*\s[[:alnum:]-]*'])
 endfunction
 
 function! deoplete#init#_context(event, sources) abort
-  let filetype = (exists('*context_filetype#get_filetype') ?
-        \   context_filetype#get_filetype() :
-        \   (&filetype == '' ? 'nothing' : &filetype))
-  let filetypes = exists('*context_filetype#get_filetypes') ?
-        \   context_filetype#get_filetypes() :
-        \   &filetype == '' ? ['nothing'] :
-        \                     deoplete#util#uniq([&filetype]
-        \                          + split(&filetype, '\.'))
-  let same_filetypes = exists('*context_filetype#get_same_filetypes') ?
-        \   context_filetype#get_same_filetypes() : []
+  let input = deoplete#util#get_input(a:event)
+
+  let [filetype, filetypes, same_filetypes] =
+        \ deoplete#util#get_context_filetype(input, a:event)
 
   let sources = deoplete#util#convert2list(a:sources)
   if a:event !=# 'Manual' && empty(sources)
@@ -188,9 +176,13 @@ function! deoplete#init#_context(event, sources) abort
   let event = (deoplete#util#get_prev_event() ==# 'Refresh') ?
         \ 'Manual' : a:event
 
-  let input = deoplete#util#get_input(a:event)
-
   let width = winwidth(0) - col('.') + len(matchstr(input, '\w*$'))
+
+  let bufname = bufname('%')
+  let bufpath = fnamemodify(bufname, ':p')
+  if &l:buftype =~# 'nofile' || !filereadable(bufpath)
+    let bufpath = ''
+  endif
 
   return {
         \ 'changedtick': b:changedtick,
@@ -213,9 +205,10 @@ function! deoplete#init#_context(event, sources) abort
         \ 'max_menu_width': (width * 2 / 3),
         \ 'runtimepath': &runtimepath,
         \ 'bufnr': bufnr('%'),
-        \ 'bufname': bufname('%'),
+        \ 'bufname': bufname,
+        \ 'bufpath': bufpath,
+        \ 'bufsize': wordcount().bytes,
         \ 'cwd': getcwd(),
-        \ 'start_complete': "\<Plug>_",
         \ 'vars': filter(copy(g:), "stridx(v:key, 'deoplete#') == 0"),
         \ 'bufvars': filter(copy(b:), "stridx(v:key, 'deoplete_') == 0"),
         \ 'custom': deoplete#custom#get(),

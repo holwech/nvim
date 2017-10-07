@@ -298,11 +298,11 @@ finish
         },
         {
           'query': "blockquote>b>i<<b",
-          'result': "<blockquote><b><i></i></b></blockquote>\n<b></b>\n",
+          'result': "<blockquote>\n\t<b><i></i></b>\n</blockquote>\n<b></b>\n",
         },
         {
           'query': "blockquote>b>i^^b",
-          'result': "<blockquote><b><i></i></b></blockquote>\n<b></b>\n",
+          'result': "<blockquote>\n\t<b><i></i></b>\n</blockquote>\n<b></b>\n",
         },
         {
           'query': "a[href=foo][class=bar]",
@@ -556,6 +556,10 @@ finish
         {
           'query': "<div>\n\t<span$$$$\\<c-y>j$$$$/>\n</div>",
           'result': "<div>\n\t<span></span>\n</div>",
+        },
+        {
+          'query': "<div onclick=\"javascript:console.log(Date.now() % 1000 > 500)\">test$$$$\\<c-y>j$$$$/>\n</div>",
+          'result': "<div onclick=\"javascript:console.log(Date.now() % 1000 > 500)\" />",
         },
       ],
     },

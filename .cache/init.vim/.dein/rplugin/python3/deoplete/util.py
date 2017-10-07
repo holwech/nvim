@@ -47,6 +47,11 @@ def convert2list(expr):
     return (expr if isinstance(expr, list) else [expr])
 
 
+def convert2candidates(l):
+    return ([{'word': x} for x in l]
+            if l and isinstance(l, list) and isinstance(l[0], str) else l)
+
+
 def globruntime(runtimepath, path):
     ret = []
     for rtp in re.split(',', runtimepath):
@@ -67,6 +72,7 @@ def find_rplugins(context, source):
         os.path.join('rplugin/python3/deoplete', source, 'base.py'),
         os.path.join('rplugin/python3/deoplete', source, '*.py'),
         os.path.join('rplugin/python3/deoplete', source + 's', '*.py'),
+        os.path.join('rplugin/python3/deoplete', source, '*', '*.py'),
     )
 
     for src in sources:
@@ -130,11 +136,12 @@ def escape(expr):
 
 
 def charpos2bytepos(encoding, input, pos):
-    return len(bytes(input[: pos], encoding))
+    return len(bytes(input[: pos], encoding, errors='replace'))
 
 
 def bytepos2charpos(encoding, input, pos):
-    return len(bytes(input, encoding)[: pos].decode(encoding))
+    return len(bytes(input, encoding, errors='replace')[: pos].decode(
+        encoding, errors='replace'))
 
 
 def get_custom(custom, source_name, key, default):
@@ -160,9 +167,8 @@ def parse_file_pattern(f, pattern):
     return list(set(ret))
 
 
-def parse_buffer_pattern(b, pattern, complete_str):
-    p = re.compile(pattern)
-    return [x for x in p.findall('\n'.join(b)) if x != complete_str]
+def parse_buffer_pattern(b, pattern):
+    return list(set(re.compile(pattern).findall('\n'.join(b))))
 
 
 def fuzzy_escape(string, camelcase):
@@ -182,28 +188,28 @@ def load_external_module(file, module):
         sys.path.insert(0, module_dir)
 
 
-def truncate_skipping(string, max, footer, footer_len):
-    if len(string) <= max/2:
+def truncate_skipping(string, max_width, footer, footer_len):
+    if len(string) <= max_width/2:
         return string
-    if strwidth(string) <= max:
+    if strwidth(string) <= max_width:
         return string
 
     footer += string[
             -len(truncate(string[::-1], footer_len)):]
-    return truncate(string, max - strwidth(footer)) + footer
+    return truncate(string, max_width - strwidth(footer)) + footer
 
 
-def truncate(string, max):
-    if len(string) <= max/2:
+def truncate(string, max_width):
+    if len(string) <= max_width/2:
         return string
-    if strwidth(string) <= max:
+    if strwidth(string) <= max_width:
         return string
 
     width = 0
     ret = ''
     for c in string:
         wc = charwidth(c)
-        if width + wc > max:
+        if width + wc > max_width:
             break
         ret += c
         width += wc
@@ -229,10 +235,58 @@ def expand(path):
 def getlines(vim, start=1, end='$'):
     if end == '$':
         end = len(vim.current.buffer)
-    max = 5000
+    max_len = min([end - start, 5000])
     lines = []
     current = start
     while current <= end:
-        lines += vim.call('getline', current, current + max)
-        current += max + 1
+        lines += vim.call('getline', current, current + max_len)
+        current += max_len + 1
     return lines
+
+
+def binary_search_begin(l, prefix):
+    if not l:
+        return -1
+    if len(l) == 1:
+        return 0 if l[0]['word'].lower().startswith(prefix) else -1
+
+    s = 0
+    e = len(l)
+    prefix = prefix.lower()
+    while s < e:
+        index = int((s + e) / 2)
+        word = l[index]['word'].lower()
+        if word.startswith(prefix):
+            if (index - 1 < 0 or not
+                    l[index-1]['word'].lower().startswith(prefix)):
+                return index
+            e = index
+        elif prefix < word:
+            e = index
+        else:
+            s = index + 1
+    return -1
+
+
+def binary_search_end(l, prefix):
+    if not l:
+        return -1
+    if len(l) == 1:
+        return 0 if l[0]['word'].lower().startswith(prefix) else -1
+
+    s = 0
+    e = len(l)
+    prefix = prefix.lower()
+    while s < e:
+        index = int((s + e) / 2)
+        word = l[index]['word'].lower()
+        if word.startswith(prefix):
+            if ((index + 1) >= len(l) or not
+                    l[index+1]['word'].lower().startswith(prefix)):
+                return index
+            s = index + 1
+        elif prefix < word:
+            e = index
+        else:
+            s = index + 1
+    return -1

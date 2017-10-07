@@ -7,6 +7,7 @@
 import re
 from abc import abstractmethod
 from deoplete.logger import LoggingMixin
+from deoplete.util import debug
 
 
 class Base(LoggingMixin):
@@ -17,8 +18,7 @@ class Base(LoggingMixin):
         self.mark = ''
         self.max_pattern_length = 80
         self.input_pattern = ''
-        self.matchers = [
-            'matcher_length', 'matcher_fuzzy']
+        self.matchers = ['matcher_fuzzy']
         self.sorters = ['sorter_rank']
         self.converters = [
             'converter_remove_overlap',
@@ -27,13 +27,18 @@ class Base(LoggingMixin):
         self.filetypes = []
         self.is_bytepos = False
         self.is_initialized = False
+        self.is_volatile = False
         self.rank = 100
         self.disabled_syntaxes = []
+        self.limit = 0
 
     def get_complete_position(self, context):
         m = re.search('(?:' + context['keyword_patterns'] + ')$',
                       context['input'])
         return m.start() if m else -1
+
+    def print(self, expr):
+        debug(self.vim, expr)
 
     @abstractmethod
     def gather_candidate(self, context):

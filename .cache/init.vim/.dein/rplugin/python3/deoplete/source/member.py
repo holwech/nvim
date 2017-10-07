@@ -7,9 +7,9 @@
 from .base import Base
 
 import re
-from deoplete.util import \
-    get_buffer_config, convert2list, parse_buffer_pattern, \
-    set_pattern, getlines
+from deoplete.util import (
+    get_buffer_config, convert2list,
+    parse_buffer_pattern, set_pattern, getlines)
 
 
 class Source(Base):
@@ -57,7 +57,6 @@ class Source(Base):
         return [{'word': x} for x in
                 parse_buffer_pattern(
                     getlines(self.vim),
-                    r'(?<=' + re.escape(self.__prefix) + r')\w+(?:\(\)?)?',
-                    context['complete_str']
+                    r'(?<=' + re.escape(self.__prefix) + r')\w+'
                 )
                 if x != context['complete_str']]

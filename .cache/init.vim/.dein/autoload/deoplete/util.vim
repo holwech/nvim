@@ -66,7 +66,7 @@ function! deoplete#util#get_input(event) abort
         \         '^.*\%' . (mode ==# 'i' ? col('.') : col('.') - 1)
         \         . 'c' . (mode ==# 'i' ? '' : '.'))
 
-  if input =~ '^.\{-}\ze\S\+$'
+  if input =~# '^.\{-}\ze\S\+$'
     let complete_str = matchstr(input, '\S\+$')
     let input = matchstr(input, '^.\{-}\ze\S\+$')
   else
@@ -96,14 +96,14 @@ function! s:vimoption2python(option) abort
   let has_dash = 0
   let patterns = []
   for pattern in split(a:option, ',')
-    if pattern == ''
+    if pattern ==# ''
       " ,
       call add(patterns, ',')
-    elseif pattern == '\'
+    elseif pattern ==# '\'
       call add(patterns, '\\')
-    elseif pattern == '-'
+    elseif pattern ==# '-'
       let has_dash = 1
-    elseif pattern =~ '\d\+'
+    elseif pattern =~# '\d\+'
       call add(patterns, substitute(pattern, '\d\+',
             \ '\=nr2char(submatch(0))', 'g'))
     else
@@ -135,20 +135,6 @@ function! deoplete#util#uniq(list) abort
   return map(list, 'v:val[0]')
 endfunction
 
-function! deoplete#util#redir(cmd) abort
-  if exists('*execute')
-    return execute(a:cmd)
-  else
-    let [save_verbose, save_verbosefile] = [&verbose, &verbosefile]
-    set verbose=0 verbosefile=
-    redir => res
-    silent! execute a:cmd
-    redir END
-    let [&verbose, &verbosefile] = [save_verbose, save_verbosefile]
-    return res
-  endif
-endfunction
-
 function! deoplete#util#get_syn_names() abort
   if col('$') >= 200
     return []
@@ -170,23 +156,74 @@ function! deoplete#util#get_syn_names() abort
   return names
 endfunction
 
-function! deoplete#util#exists_omnifunc(name) abort
-  if !exists('s:called_omnifuncs')
-    let s:called_omnifuncs = {}
-  endif
-
-  if !has_key(s:called_omnifuncs, a:name)
-    silent! call {a:name}(1, '')
-    let s:called_omnifuncs[a:name] = exists('*' . a:name)
-  endif
-  return s:called_omnifuncs[a:name]
-endfunction
-
 function! deoplete#util#neovim_version() abort
   redir => v
   silent version
   redir END
   return split(v, '\n')[0]
+endfunction
+
+function! deoplete#util#get_context_filetype(input, event) abort
+  if !exists('s:context_filetype')
+    let s:context_filetype = {}
+
+    " Force context_filetype call.
+    try
+      call context_filetype#get_filetype()
+    catch
+      " Ignore error
+    endtry
+  endif
+
+  if empty(s:context_filetype)
+        \ || s:context_filetype.prev_filetype !=# &filetype
+        \ || s:context_filetype.line != line('.')
+        \ || s:context_filetype.bufnr != bufnr('.')
+        \ || (a:input =~# '\W$' &&
+        \     substitute(a:input, '\s\zs\s\+$', '', '') !=#
+        \     substitute(s:context_filetype.input, '\s\zs\s\+$', '', ''))
+        \ || (a:input =~# '\w$' &&
+        \     substitute(a:input, '\w\+$', '', '') !=#
+        \     substitute(s:context_filetype.input, '\w\+$', '', ''))
+        \ || a:event ==# 'InsertEnter'
+
+    let s:context_filetype.line = line('.')
+    let s:context_filetype.bufnr = bufnr('.')
+    let s:context_filetype.input = a:input
+    let s:context_filetype.prev_filetype = &filetype
+    let s:context_filetype.filetype =
+          \ (exists('*context_filetype#get_filetype') ?
+          \   context_filetype#get_filetype() :
+          \   (&filetype ==# '' ? 'nothing' : &filetype))
+    let s:context_filetype.filetypes =
+          \ exists('*context_filetype#get_filetypes') ?
+          \   context_filetype#get_filetypes() :
+          \   &filetype ==# '' ? ['nothing'] :
+          \                     deoplete#util#uniq([&filetype]
+          \                          + split(&filetype, '\.'))
+    let s:context_filetype.same_filetypes =
+          \ exists('*context_filetype#get_same_filetypes') ?
+          \   context_filetype#get_same_filetypes() : []
+  endif
+  return [ s:context_filetype.filetype,
+        \  s:context_filetype.filetypes, s:context_filetype.same_filetypes]
+endfunction
+
+function! deoplete#util#rpcnotify(...) abort
+  if deoplete#init#_check_channel()
+    return ''
+  endif
+
+  if !exists('s:logged') && !empty(g:deoplete#_logging)
+    call rpcnotify(g:deoplete#_channel_id,
+          \ 'deoplete_enable_logging',
+          \ g:deoplete#_logging.level, g:deoplete#_logging.logfile)
+    let g:deoplete#_logging = {}
+    let s:logged = 1
+  endif
+
+  call call('rpcnotify', [g:deoplete#_channel_id] + a:000)
+  return ''
 endfunction
 
 " Compare versions.  Return values is the distance between versions.  Each

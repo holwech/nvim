@@ -207,6 +207,12 @@ xmap s <Plug>VSurround
 " + Deoplete 
 " Enable at startup
 let g:deoplete#enable_at_startup = 1
+" To close preview window of deoplete automatically
+autocmd CompleteDone * pclose
+
+" + Yapf
+" Remap for the yapf python autocomplete
+autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
 
 " Adds SuperTab behavior
 imap <expr><TAB>

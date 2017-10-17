@@ -182,10 +182,6 @@ inoremap <C-U> <C-G>u<C-U>
 :nnoremap <C-k> <C-w>k
 :nnoremap <C-l> <C-w>l
 
-" Remap exit terminal to Esc-key
-tnoremap <Esc> <C-\><C-n>
-
-
 
 
 " ---- Plugin configs ----
@@ -213,18 +209,6 @@ autocmd CompleteDone * pclose
 " + Yapf
 " Remap for the yapf python autocomplete
 autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
-
-" Adds SuperTab behavior
-imap <expr><TAB>
- \ pumvisible() ? "\<C-n>" :
- \ neosnippet#expandable_or_jumpable() ?
- \    neosnippet#mappings#expand_or_jump_impl() : "\<TAB>"
-smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-\ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
-" Conceals markers
-if has('conceal')
-	set conceallevel=2 concealcursor=niv
-endif
 
 " + CtrlP
 " Ignore node_module folder

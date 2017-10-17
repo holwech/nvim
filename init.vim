@@ -205,6 +205,8 @@ xmap s <Plug>VSurround
 let g:deoplete#enable_at_startup = 1
 " To close preview window of deoplete automatically
 autocmd CompleteDone * pclose
+" deoplete tab-complete
+inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
 
 " + Yapf
 " Remap for the yapf python autocomplete
